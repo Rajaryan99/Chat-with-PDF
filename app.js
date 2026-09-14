@@ -20,8 +20,24 @@ try {
     const dataBuffer = await fs.readFile(req.file.path);
     const pdfData = new PDFParse({data: dataBuffer})
     const pdfText = await pdfData.getText()
-    console.log(pdfText.text)
-     res.send(["file uploaded successfully",pdfText.text] )
+    const text = pdfText.text
+
+    const chunks = text.split('\n\n')
+
+
+
+    // for(let i=0; i<=text.length; i+=500){
+    //     chunks.push(text.slice(i, i+500))
+    // }
+
+
+    console.log(chunks)
+
+    res.json({
+
+        totalChunks: chunks.length,
+        chunks,
+    })
     
 } catch (error) {
     console.error(error)
