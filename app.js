@@ -3,6 +3,16 @@ import 'dotenv/config'
 import multer from 'multer';
 import fs from 'node:fs/promises'
 import {PDFParse} from 'pdf-parse'
+import {GoogleGenAI} from '@google/genai';
+
+
+
+// const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+
+const ai = new GoogleGenAI({
+    apiKey: process.env.GEMINI_API_KEY
+})
+
 
 const upload = multer({dest: 'uploads/'})
 
@@ -23,6 +33,7 @@ try {
     const text = pdfText.text
 
     const chunks = text.split('\n\n')
+    console.log(chunks)
 
 
 
@@ -31,16 +42,15 @@ try {
     // }
 
 
-    console.log(chunks)
-
-    res.json({
-
-        totalChunks: chunks.length,
-        chunks,
+    const response = await ai.models.generateContent({
+        model: 'gemini-3.6-flash',
+        contents: `Explain this PDF in plan and easy way ${chunks[0]}`
     })
+
+    res.status(200).send(response.text)
     
 } catch (error) {
-    console.error(error)
+    console.error(error.message)
     res.status(500).send("Error reading file")
     
 }
